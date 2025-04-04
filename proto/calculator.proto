@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package calculator.v1;
+
+// 这里仅声明 go_package，让 protoc-gen-go / protoc-gen-go-grpc 把消息代码放进 "calculatorv1" 包
+service CalculatorService {
+  rpc Calculate(CalculatorRequest) returns (CalculatorResponse);
+}
+
+message CalculatorRequest {
+  double number1 = 1;
+  double number2 = 2;
+  string operator = 3;
+}
+
+message CalculatorResponse {
+  double result = 1;
+}
