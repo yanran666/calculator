@@ -57,6 +57,7 @@ npm install
 npm install --legacy-peer-deps
 ```
 2. **运行前端开发服务器**
+   
  在 client/ 目录下运行：
 ```
 npm run dev
@@ -66,6 +67,7 @@ npm run dev
  ### 后端部分
 
  1. **安装Go依赖**
+    
     在 server/ 目录下，确保 go.mod 文件中包含所有依赖（如 ConnectRPC、rs/cors 等）。如果未安装 rs/cors，请运行：
 ```
     go get github.com/rs/cors
