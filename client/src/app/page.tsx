@@ -1,6 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
+import { createPromiseClient } from "@connectrpc/connect";
+import { createConnectTransport } from "@connectrpc/connect-web";
+import { CalculatorService } from "../gen/calculator_connect";
+import type { CalculatorResponse } from "../gen/calculator_pb";
 
 const Home = () => {
   const [number1, setNumber1] = useState("0");
@@ -8,36 +12,21 @@ const Home = () => {
   const [operator, setOperator] = useState("+");
   const [result, setResult] = useState("");
 
+  const transport = createConnectTransport({
+    baseUrl: "http://localhost:8080",
+  });
+
+  const client = createPromiseClient(CalculatorService, transport);
+
   async function handleCalculate() {
-    // 客户端提前检查：如果运算符是除法且第二个数字为 0，则直接提示用户
-    if (operator === "/" && parseFloat(number2) === 0) {
-      alert("除数不能为零");
-      return;
-    }
     try {
-      const response = await fetch("http://localhost:8080/calculator.v1.CalculatorService/Calculate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Connect-Protocol-Version": "1"
-        },
-        body: JSON.stringify({
-          number1: parseFloat(number1),
-          number2: parseFloat(number2),
-          operator: operator,
-        }),
+      const response = await client.calculate({
+        number1: parseFloat(number1),
+        number2: parseFloat(number2),
+        operator,
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log("Response data:", data);
-      if (data && data.result !== undefined) {
-        setResult(data.result.toString());
-      } else {
-        throw new Error("响应数据中没有 result 字段: " + JSON.stringify(data));
-      }
+      // 假设生成的 Stub 返回结果包装在 response.Msg 中
+      setResult(response.result.toString());
     } catch (error: unknown) {
       console.error("Error during calculate:", error);
       let errMsg = "调用失败";
@@ -50,7 +39,7 @@ const Home = () => {
 
   return (
     <main style={{ margin: "2rem" }}>
-      <h1>简单计算器</h1>
+      <h1>Connect RPC 计算器</h1>
       <div style={{ display: "flex", gap: "1rem" }}>
         <input
           type="number"
